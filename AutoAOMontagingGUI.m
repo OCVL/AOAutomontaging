@@ -32,12 +32,13 @@ gui_State = struct('gui_Name',       mfilename, ...
     'gui_OutputFcn',  @AutoAOMontagingGUI_OutputFcn, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
-if nargin && ischar(varargin{1}) %input arguments were entered
+if nargin && ischar(varargin{1}) %input arguments were entered and the variable length argument list's first entry is a character string
     gui_State.gui_Callback = str2func(varargin{1});
 end
 
 
-
+%Variable length output arguments that go from 1-# is equal to the main
+%function of the GUI with the intup variable list and the state
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
@@ -74,8 +75,8 @@ handles.device_mode = 'multi_modal';
 
 %add path and setup vl_feat
 currentFile = mfilename('fullpath');
-[currentFileLoc,name,ext] = fileparts(currentFile); 
-genpath(fullfile(currentFileLoc,'SupportFunctions'));
+[currentFileLoc,name,ext] = fileparts(currentFile); %separates all the parts of the file from one another
+genpath(fullfile(currentFileLoc,'SupportFunctions')); %path generated that contains the fileLoc and everything under it
 addpath(genpath(fullfile(currentFileLoc,'SupportFunctions')));
 vl_setup;
 
