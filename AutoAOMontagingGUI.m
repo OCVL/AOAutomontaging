@@ -22,7 +22,7 @@ function varargout = AutoAOMontagingGUI(varargin)
 
 % Edit the above text to modify the response to help AutoAOMontagingGUI
 
-% Last Modified by GUIDE v2.5 31-Aug-2017 14:05:51
+% Last Modified by GUIDE v2.5 10-Aug-2021 14:50:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -137,9 +137,9 @@ function imageList_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from imageList
 
 if(~isempty(handles.imgfolder_name) && ~isempty(handles.imageFile_names))
-    index_selected = get(handles.imageList,'Value');
+    index_selected = get(handles.imageList,'Value'); % gets the specified property from the image list
     axes(handles.canvas);
-    img = imread(fullfile(handles.imgfolder_name,handles.imageFile_names{index_selected}));
+    img = imread(fullfile(handles.imgfolder_name,handles.imageFile_names{index_selected})); %reads the constructed path to open the image
     imagesc(img); colormap gray; axis equal; axis off;
 end
 
@@ -151,8 +151,8 @@ function imageList_CreateFcn(hObject, eventdata, handles)
 
 % Hint: listbox controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor')) %checks if its a windows machine and if the background from the object match the defulat UI one
+    set(hObject,'BackgroundColor','white'); %set the objects background to white
 end
 
 
@@ -162,28 +162,30 @@ function imagefolder_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-selectedDir=uigetdir(handles.imgfolder_name);
-if(selectedDir == 0)
+selectedDir=uigetdir(handles.imgfolder_name); %opens the image folder selected
+if(selectedDir == 0) %check for the directory not exsiting 
     return
 end
 handles.imgfolder_name = selectedDir;
+%setting object properties
 set(handles.selectFolderText, 'String', handles.imgfolder_name) ;
-set(handles.selectFolderText, 'TooltipString', handles.imgfolder_name) ;
+set(handles.selectFolderText, 'TooltipString', handles.imgfolder_name);
 
-Allfiles = dir(fullfile(handles.imgfolder_name,'*.tif'));
-Allfiles = {Allfiles.name};
+Allfiles = dir(fullfile(handles.imgfolder_name,'*.tif')); %puts into an array all files from the image folder that have a tif extension
+Allfiles = {Allfiles.name}; %gets the name attribute from the above line
 
 handles.imageFile_names =[];
 %Use current identifiers to locate all images
 dataSummary = cell(1,1);
 dataSummary{1} = 'Input Data Summary:';
 
+%does different things depending on the mode selected
 if strcmp(handles.device_mode, 'multi_modal')
     for m = 1:size(handles.modalitiesInfo,1)
         if (~isempty(handles.modalitiesInfo{m,2}))%check it's not empty
-            found = sort(Allfiles(~cellfun(@isempty, strfind(Allfiles, handles.modalitiesInfo{m,2}))));
-            handles.imageFile_names = [handles.imageFile_names, found];%search
-            dataSummary{end+1} =[num2str(size(found,2)),' ',char(handles.modalitiesInfo{m,1}),' image(s) found.'];
+            found = sort(Allfiles(~cellfun(@isempty, strfind(Allfiles, handles.modalitiesInfo{m,2})))); %applys isempty to all the names to all the modalities info files that are also in Allfiles
+            handles.imageFile_names = [handles.imageFile_names, found]; %search
+            dataSummary{end+1} =[num2str(size(found,2)),' ',char(handles.modalitiesInfo{m,1}),' image(s) found.']; %adds all the found images to the dataSummary cell
         end
     end
     
@@ -191,9 +193,11 @@ if strcmp(handles.device_mode, 'multi_modal')
     dataSummary{end+1} = 'Note: You can modify how to search for each modality under Preferences->Input Settings.';
 
 elseif strcmp(handles.device_mode, 'canon')
-    found = sort(Allfiles(cellfun(@(s) strcmp(s(1:4),'206-'), Allfiles )));
+    found = sort(Allfiles(cellfun(@(s) strcmp(s(1:4),'206-'), Allfiles ))); %What function is rpresented by s? Sorts the elements in ascending order
     handles.imageFile_names = [handles.imageFile_names, found];%search
     dataSummary{end+1} =[num2str(size(found,2)),' image(s) found.'];
+    
+    %Add in another device mode and disable the postion
 end
 
 
@@ -212,8 +216,8 @@ function selectPosFile_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 defaultfolder = handles.imgfolder_name;
 [FileName,PathName] = uigetfile({ '*.csv', 'LUT Files (*.csv)'; '*.xlsx', 'Legacy LUT Format (*.xlsx)' }, ...
-                                'Select LUT file:', defaultfolder);
-handles.postionFile_name = fullfile(PathName,FileName);
+                                'Select LUT file:', defaultfolder); %returns the file name and path that was selected by the user
+handles.postionFile_name = fullfile(PathName,FileName); %gets the filename and the full path to the positional file selected
 set(handles.posFileText, 'String', handles.postionFile_name);
 set(handles.posFileText, 'TooltipString', handles.postionFile_name);
 guidata(hObject, handles);
@@ -227,6 +231,8 @@ function montageList_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns montageList contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from montageList
 
+
+%finds the output montage and opens the file and formats it to be displayed
 if(~isempty(handles.combinedFile_names) && ~isempty(handles.outputFolder_name))
     index_selected = get(handles.montageList,'Value');
     axes(handles.canvas);
@@ -270,19 +276,15 @@ switch get(get(handles.uibuttongroup2,'SelectedObject'),'Tag')
     case 'radiobutton5'
         % If new check for existing save file exists
         if(exist(fullfile(handles.outputFolder_name, 'AOMontageSave.mat'), 'file'))
-            choice = questdlg('AOMontageSave.mat file found in output folder. Overwrite existing montage?','Warrning');
+            choice = questdlg('AOMontageSave.mat file found in output folder. Overwrite existing montage?','Warrning'); %displays a dialog box with the prompt
             if(~isequal(choice,'Yes'))
-                return;
+                return; %Return unless they want to overide the file
             end
         end
         AppendToExisting=0;
-    case 'radiobutton6',
+    case 'radiobutton6'
         %If appending check for existing save file
-        if(~exist(fullfile(handles.outputFolder_name, 'AOMontageSave.mat'), 'file'))
-            
-            
-            
-            
+        if(~exist(fullfile(handles.outputFolder_name, 'AOMontageSave.mat'), 'file')) %if the .mat file does not exsit ask if they want to create a new one
             choice = questdlg('Appending Failed: AOMontageSave.mat file not found in output folder. Continue as New?','Error');
             if(isequal(choice,'Yes'))
                 AppendToExisting = 0;
@@ -299,12 +301,15 @@ end
 
 
 tic
+%need to do the filename parsin in this function based off the device mode
 handles.combinedFile_names = AOMosiacAllMultiModal(handles.imgfolder_name, handles.postionFile_name, ...
                                                    handles.outputFolder_name, handles.device_mode, ...
                                                    handles.modalitiesInfo(:,2), TransType,AppendToExisting, ...
                                                    MontageSave, get(handles.pshop_cbox,'Value') );
 toc
 
+%As long as the combined files handle is not empty it will dispay the
+%images that have been montaged together otherwise it will give an error
 if(~isempty(handles.combinedFile_names))
 set(handles.montageList,'String',handles.combinedFile_names,...
     'Value',1)
@@ -340,7 +345,7 @@ function outputFolder_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-selectedDir=uigetdir;
+selectedDir=uigetdir; %allows user to select directory and then save the output here
 if(selectedDir == 0)
     return
 end
@@ -466,6 +471,21 @@ handles.modalitiesInfo = {'Canon confocal','206-'};
 handles.device_mode = 'canon';
 guidata(hObject, handles);
 
+% --------------------------------------------------------------------
+function meao_device_Callback(hObject, eventdata, handles)
+% hObject    handle to meao_device (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.canon_device, 'Checked', 'on');
+set(handles.multi_modal_device, 'Checked', 'off');
+set(handles.posFileText,'String','');
+set(handles.selectPosFile, 'Enable','off');
+set(handles.inputsettings,'Enable','off');
+
+%handles.modalitiesInfo = {'Canon confocal','206-'};
+handles.device_mode = 'meao';
+guidata(hObject, handles);
+
 
 % --- Executes on button press in pshop_cbox.
 function pshop_cbox_Callback(hObject, eventdata, handles)
@@ -474,3 +494,6 @@ function pshop_cbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of pshop_cbox
+
+
+
