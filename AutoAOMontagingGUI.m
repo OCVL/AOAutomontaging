@@ -70,7 +70,8 @@ handles.modalitiesInfo = {'Confocal' 'confocal';
     'Modality 4' '';
     'Modality 5' '';};
 handles.inputExt = 1;
-handles.device_mode = 'multi_modal';
+%handles.device_mode = 'multi_modal';
+handles.device_mode = 'meao';
 %default to .tif
 
 %add path and setup vl_feat
@@ -198,6 +199,13 @@ elseif strcmp(handles.device_mode, 'canon')
     dataSummary{end+1} =[num2str(size(found,2)),' image(s) found.'];
     
     %Add in another device mode and disable the postion
+elseif strcmp(handles.device_mode, 'meao')
+    expr = '.*_extract_reg_avg.tif';
+    f = cellfun(@(q) regexpi(q(1,:), expr, 'match'), Allfiles, 'UniformOutput', false);
+    found = f(~cellfun('isempty', f));
+    temp = cellfun(@(x) cell2mat(x), found, 'un', 0);
+    handles.imageFile_names = [handles.imageFile_names, temp];
+    dataSummary{end+1} = [num2str(size(found,2)), ' image(s) found.'];
 end
 
 
@@ -444,6 +452,7 @@ function multi_modal_device_Callback(hObject, eventdata, handles)
 
 set(handles.canon_device, 'Checked', 'off');
 set(handles.multi_modal_device, 'Checked', 'on');
+set(handles.meao_device, 'Checked', 'off');
 set(handles.selectPosFile, 'Enable','on');
 set(handles.inputsettings,'Enable','on');
 
@@ -463,6 +472,7 @@ function canon_device_Callback(hObject, eventdata, handles)
 
 set(handles.canon_device, 'Checked', 'on');
 set(handles.multi_modal_device, 'Checked', 'off');
+set(handles.meao_device, 'Checked', 'off');
 set(handles.posFileText,'String','');
 set(handles.selectPosFile, 'Enable','off');
 set(handles.inputsettings,'Enable','off');
@@ -476,7 +486,8 @@ function meao_device_Callback(hObject, eventdata, handles)
 % hObject    handle to meao_device (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(handles.canon_device, 'Checked', 'on');
+set(handles.meao_device, 'Checked', 'on');
+set(handles.canon_device, 'Checked', 'off');
 set(handles.multi_modal_device, 'Checked', 'off');
 set(handles.posFileText,'String','');
 set(handles.selectPosFile, 'Enable','off');
