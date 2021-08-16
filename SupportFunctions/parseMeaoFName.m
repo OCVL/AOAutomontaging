@@ -12,13 +12,21 @@ function [ eyeSide, LocXY, modality ] = parseMeaoFName( filenameStr )
 splitString = textscan(filenameStr, '%s', 'Delimiter', '_');
 splitString = splitString{1};
 
+% Eye and inital location information abstraction
 eyeSide = splitString{3};
 locStr = splitString{4};
+
+% Size information abstraction
+s = splitString{5};
+dem = textscan(s, '%s', 'Delimiter', 'x');
+dem = dem{1};
+
+% Modality abstraction
 modality = splitString{7};
 modality = modality(1:end-1);
 
+% XY Location  
 r = ["(", ")"];
-
 newLocStr = erase(locStr, r);
 locations = textscan(newLocStr, '%s', 'Delimiter', ',');
 locations = locations{1};
@@ -28,7 +36,6 @@ Y = convertCharsToStrings(locations{2});
 
 LocXY(1) = str2double(X);
 LocXY(2) = str2double(Y);
-
 
 end
 
