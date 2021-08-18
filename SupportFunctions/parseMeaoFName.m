@@ -18,7 +18,10 @@ eyeSide = splitString{3};
 locStr = splitString{4};
 
 % Subject ID that is the ID in the calling function
-id = splitString{1};
+i = splitString{1};
+i = textscan(i, '%s', 'Delimiter', 't');
+i = i{1};
+id = i{2};
 
 % Size information abstraction
 s = splitString{5};
