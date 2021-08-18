@@ -1,4 +1,4 @@
-function [imageFilename, eyeSide, pixelScale, LocXY, ID, NC, errorFlag] = readPositionFile(imageDir, inData, posFileLoc,device_mode, matchexp, MN, N)
+function [imageFilename, eyeSide, pixelScale, LocXY, ID, NC, errorFlag] = readPositionFile(imageDir, inData, posFileLoc, device_mode, matchexp, MN, N)
 
 %defaults
 imageFilename = cell(MN,N);%stores all filenames
@@ -125,6 +125,14 @@ elseif strcmp(device_mode, 'canon')
     for n = 1:N
         [ eyeSide, LocXY(:,n) ] = parseCanonFName( inData{1,n} );
         imageFilename{1,n} = fullfile(imageDir, inData{1,n});
+    end
+    
+elseif strcmp(device_mode, 'meao')
+    for n = 1:N
+        %Since the modality is being pulled out as well need to figure out
+        %what variable this should be saved too
+       [ eyeSide, LocXY(:,n), pixelScale, ID ] = parseMeaoFName( inData{1,n} );
+       imageFileName{1,n} = fullfile(imageDir, inData{1,n});
     end
 end
 
