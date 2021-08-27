@@ -14,7 +14,12 @@ tob.setTag('ExtraSamples',Tiff.ExtraSamples.AssociatedAlpha)
 %# version of this for convenience)
 tob.setTag('ImageLength',size(imageToSave,1));
 tob.setTag('ImageWidth',size(imageToSave,2));
-tob.setTag('BitsPerSample',8);
+
+if isa(imageToSave, 'uint16')
+    tob.setTag('BitsPerSample',16);
+else
+    tob.setTag('BitsPerSample',8);
+end
 tob.setTag('RowsPerStrip',16);
 tob.setTag('PlanarConfiguration',Tiff.PlanarConfiguration.Separate);
 tob.setTag('Software','MATLAB')

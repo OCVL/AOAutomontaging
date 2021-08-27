@@ -491,9 +491,12 @@ set(handles.canon_device, 'Checked', 'off');
 set(handles.multi_modal_device, 'Checked', 'off');
 set(handles.posFileText,'String','');
 set(handles.selectPosFile, 'Enable','off');
-set(handles.inputsettings,'Enable','off');
+set(handles.inputsettings,'Enable','on');
 
-%handles.modalitiesInfo = {'Canon confocal','206-'};
+handles.modalitiesInfo = {'Meao confocal' 'Confocal';
+                          'Meao 760' '760nm';
+                          'Meao split' 'CalculatedSplit';
+                           };
 handles.device_mode = 'meao';
 guidata(hObject, handles);
 

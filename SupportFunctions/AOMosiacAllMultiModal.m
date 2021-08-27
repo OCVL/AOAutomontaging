@@ -510,8 +510,8 @@ fovlist = cellfun(@(n) num2str(n,'%0.2f'), num2cell(round(fovlist,2)),'UniformOu
 %save variables
 save(fullfile(outputDir,'AOMontageSave'),'LocXY','inData','TransType',...
     'ResultsNumOkMatches','ResultsNumMatches',...
-    'ResultsTransformToRef','f_all','d_all','N','ResultsScaleToRef','MatchedTo','TotalTransform',...
-    'RelativeTransformToRef');
+    'ResultsTransformToRef','f_all','d_all','N','MN','vr','ur','ResultsScaleToRef','MatchedTo','TotalTransform',...
+    'RelativeTransformToRef','imageFilename','pixelScale','NumOfRefs','RefChains','AllRefIndex');
 
 %% Determine the dominant direction of each shifted image
 Global=[1 0 0; 0 1 0;-minXAll -minYAll 1]; 
@@ -645,7 +645,7 @@ if export_to_pshop
 end
 
 %  save tmp.mat;
-%%
+%% Tif writing code
 
 for m = 1:MN
     
