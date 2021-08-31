@@ -650,12 +650,20 @@ end
 for m = 1:MN
     
     %initialize blank combined image of all pieces for the modality
-    imCombinedAll = zeros(length(vr),length(ur), 'uint8');
+    if(strcmp(device_mode, 'meao'))
+        imCombinedAll = zeros(length(vr),length(ur), 'uint16');
+    else
+        imCombinedAll = zeros(length(vr),length(ur), 'uint8');
+    end
     
     for i = 1: NumOfRefs
         if ~isempty(imageFilename{m,AllRefIndex(i)})
             %initialize blank combined image for the modality/piece
-            imCombined = zeros(length(vr),length(ur), 'uint8');
+            if(strcmp(device_mode, 'meao'))
+                imCombined = zeros(length(vr),length(ur), 'uint16');
+            else
+                imCombined = zeros(length(vr),length(ur), 'uint8');
+            end
             
             for n = RefChains{i}
                 if ~isempty(imageFilename{m,n})
@@ -664,14 +672,13 @@ for m = 1:MN
                     
 
                     H = TotalTransform(:,:,n);
-                    
                     H = pinv(H');
                     H(:,3)=[0;0;1]; 
                    
                     tform = affine2d(H*Global);
                     %Adding one changes nothing, but ensures that we don't
                     %clip out low parts of the image.
-                    im_=imwarp(im, imref2d(size(im)), tform,'OutputView', imref2d(size(imCombined))); 
+                    im_= imwarp(im, imref2d(size(im)), tform,'OutputView', imref2d(size(imCombined))); 
                     
                     %save each individually transformed image
                     [pathstr,name,ext] = fileparts(char(imageFilename{m,n})) ;
@@ -695,7 +702,7 @@ for m = 1:MN
                     
                     if(isa(im,'double') || isa(im,'single'))%if input was floating point, save as single
                         saveTifDouble(single(im_),outputDir,saveFileName);
-                    else%else save as uint8
+                    else %else save as uint8 -- prob needs to have a meao version
                         %convert if output file is currently floating,
                         if (isa(im_,'double') || isa(im,'single'))
                             im_(:,:,1) = uint8(round(im_*255));
