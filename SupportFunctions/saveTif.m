@@ -1,4 +1,4 @@
-function saveTif(imageToSave,outputDir,saveFileName)
+function saveTif(imageToSave,outputDir,saveFileName, device_mode)
 
 %make file
 tob = Tiff(fullfile(outputDir,saveFileName),'w');
@@ -33,7 +33,11 @@ imageToSave(:,:,2) = 255*(imageToSave(:,:,1)>0);
 end
 
 if(isa(imageToSave,'double') || isa(imageToSave,'single'))
-    imageToSave = uint8(round(imageToSave*255));
+    if(strcmp(device_mode, 'meao'))
+        imageToSave = uint16(round(imageToSave*255));
+    else
+        imageToSave = uint8(round(imageToSave*255));
+    end
 end
 
 %# write and close the file

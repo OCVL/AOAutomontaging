@@ -709,7 +709,7 @@ for m = 1:MN
                             im_(:,:,2) = uint8(round(nonzero*255));
                         end
                         %otherwise save
-                        saveTif(im_,outputDir,saveFileName);
+                        saveTif(im_,outputDir,saveFileName,device_mode);
                     end
                     
                     numWritten = numWritten+1;
