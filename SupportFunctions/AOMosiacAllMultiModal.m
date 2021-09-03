@@ -508,10 +508,10 @@ fovlist = unique(pixelScale);
 fovlist = cellfun(@(n) num2str(n,'%0.2f'), num2cell(round(fovlist,2)),'UniformOutput',false);
 
 %save variables
-save(fullfile(outputDir,'AOMontageSave'),'LocXY','inData','TransType',...
-    'ResultsNumOkMatches','ResultsNumMatches',...
+save(fullfile(outputDir,'AOMontageSave'),'LocXY','inData','TransType','numWritten', 'h' ,...
+    'ResultsNumOkMatches','ResultsNumMatches', 'minYAll', 'export_to_pshop','NC', 'eyeSide', 'outputDir',...
     'ResultsTransformToRef','f_all','d_all','N','MN','vr','ur','ResultsScaleToRef','MatchedTo','TotalTransform',...
-    'RelativeTransformToRef','imageFilename','pixelScale','NumOfRefs','RefChains','AllRefIndex');
+    'RelativeTransformToRef','imageFilename','pixelScale','NumOfRefs','RefChains','AllRefIndex', 'device_mode', 'minXAll');
 
 %% Determine the dominant direction of each shifted image
 Global=[1 0 0; 0 1 0;-minXAll -minYAll 1]; 
@@ -614,14 +614,25 @@ if export_to_pshop
                         %add to combined image
                         nonzero = im_(:,:,2)>0;
                         im_ = im_(:,:,1);
-                        im_(:,:,1) = uint8(round(im_*255));
-                        im_(:,:,2) = uint8(round(nonzero*255));
+                        if(strcmp(device_mode, 'meao'))
+                            im_(:,:,1) = uint16(round(im_*65535));
+                            im_(:,:,2) = uint16(round(nonzero*65535));
+                        else
+                            im_(:,:,1) = uint8(round(im_*255));
+                            im_(:,:,2) = uint8(round(nonzero*255));
+                        end
                     else
                         im_ = im_(:,:,1);
                         %add to combined image
                         nonzero = im_>0;
-                        im_(:,:,1) = uint8(round(im_*255));
-                        im_(:,:,2) = uint8(round(nonzero*255));
+                        %transparency
+                        if(strcmp(device_mode, 'meao'))
+                            im_(:,:,1) = uint16(round(im_*65535));
+                            im_(:,:,2) = uint16(round(nonzero*65535));
+                        else
+                            im_(:,:,1) = uint8(round(im_*255));
+                            im_(:,:,2) = uint8(round(nonzero*255));
+                        end
                     end
                     
                     saveName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m)];
@@ -704,16 +715,16 @@ for m = 1:MN
                         saveTifDouble(single(im_),outputDir,saveFileName);
                     else %else save as uint8 -- prob needs to have a meao version
                         %convert if output file is currently floating,
-                        if (isa(im_,'double') || isa(im,'single'))
-                            im_(:,:,1) = uint8(round(im_*255));
-                            im_(:,:,2) = uint8(round(nonzero*255));
+                        if (isa(im_,'double') || isa(im,'single'))       
+                                im_(:,:,1) = uint8(round(im_*255));
+                                im_(:,:,2) = uint8(round(nonzero*255));
                         end
                         %otherwise save
                         saveTif(im_,outputDir,saveFileName,device_mode);
                     end
                     
                     numWritten = numWritten+1;
-                    waitbar(numWritten/(N*MN),h,strcat('Writing Outputs (',num2str(100*numWritten/(N*MN),3),'%)'));
+                    %waitbar(numWritten/(N*MN),h,strcat('Writing Outputs (',num2str(100*numWritten/(N*MN),3),'%)'));
                 end
             end
         
@@ -721,8 +732,12 @@ for m = 1:MN
             %add to all combined image
             nonzero = imCombined>0;
             imCombinedAll(nonzero) = imCombined(nonzero);
-            imCombined(:,:,2) = round(nonzero*255);
-
+            if(strcmp(device_mode, 'meao'))
+                imCombined(:,:,2) = round(nonzero*65535);
+            else
+                imCombined(:,:,2) = round(nonzero*255);
+            end
+            
             %save combined image for each piece - removed for memory concerns.
             if(NumOfRefs > 1)%only necessary if more than one piece
                 saveFileName = strcat('ref_',num2str(i),'_combined_m',num2str(m),'.tif');
@@ -747,12 +762,16 @@ for m = 1:MN
     end
     
     nonzero = imCombinedAll>0;
-    imCombinedAll(:,:,2) = round(nonzero*255);
+    if(strcmp(device_mode, 'meao'))
+        imCombinedAll(:,:,2) = round(nonzero*65535);
+    else
+        imCombinedAll(:,:,2) = round(nonzero*255);
+    end
     
     saveTif(imCombinedAll,outputDir,saveFileName);
     
 end
 
-runtime=toc
+runtime=toc;
 
 

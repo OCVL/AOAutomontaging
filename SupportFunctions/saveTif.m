@@ -20,24 +20,24 @@ if isa(imageToSave, 'uint16')
 else
     tob.setTag('BitsPerSample',8);
 end
+
 tob.setTag('RowsPerStrip',16);
 tob.setTag('PlanarConfiguration',Tiff.PlanarConfiguration.Separate);
 tob.setTag('Software','MATLAB')
 tob.setTag('SamplesPerPixel',2);
 
+
 if(size(imageToSave,3) == 1)
-
-imageToSave = repmat(imageToSave(:,:,1),[1,1,2]);
-imageToSave(:,:,2) = 255*(imageToSave(:,:,1)>0);
-
+    imageToSave = repmat(imageToSave(:,:,1),[1,1,2]);
+    if(strcmp(device_mode, 'meao'))
+        imageToSave(:,:,2) = 65535*(imageToSave(:,:,1)>0);
+    else
+        imageToSave(:,:,2) = 255*(imageToSave(:,:,1)>0);
+    end
 end
 
 if(isa(imageToSave,'double') || isa(imageToSave,'single'))
-    if(strcmp(device_mode, 'meao'))
-        imageToSave = uint16(round(imageToSave*255));
-    else
         imageToSave = uint8(round(imageToSave*255));
-    end
 end
 
 %# write and close the file

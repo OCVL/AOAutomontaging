@@ -137,6 +137,7 @@ elseif strcmp(device_mode, 'meao')
             imageFilename{m,n} = fullfile(imageDir, inData{m,n});
        end
     end
-    pixelScale = max(pixelScale)./pixelScale;
+    pixelScale = pixelScale ./ min(pixelScale);
+    %pixelScale = min(pixelScale)./pixelScale;
 end
 
