@@ -493,9 +493,9 @@ set(handles.posFileText,'String','');
 set(handles.selectPosFile, 'Enable','off');
 set(handles.inputsettings,'Enable','on');
 
-handles.modalitiesInfo = {'Meao confocal' 'Confocal';
-                          'Meao 760' '760nm';
-                          'Meao split' 'CalculatedSplit';
+handles.modalitiesInfo = {'Confocal' 'Confocal';
+                          '760 nm' '760nm';
+                          'Split' 'CalculatedSplit';
                            };
 handles.device_mode = 'meao';
 guidata(hObject, handles);
