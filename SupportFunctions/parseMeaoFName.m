@@ -19,9 +19,6 @@ locStr = splitString{4};
 
 % Subject ID that is the ID in the calling function
 id = splitString{1};
-%i = textscan(i, '%s', 'Delimiter', 't');
-%i = i{1};
-%id = i{2};
 
 % Size information abstraction
 s = splitString{5};
@@ -30,13 +27,13 @@ dem = dem{1};
 dem = str2double(dem{1});
 
 % XY Location  
-r = ["(", ")"];
-newLocStr = erase(locStr, r);
+newLocStr = strrep(locStr, '(', '');
+newLocStr = strrep(newLocStr, ')', '');
 locations = textscan(newLocStr, '%s', 'Delimiter', ',');
 locations = locations{1};
 
-X = convertCharsToStrings(locations{1});
-Y = convertCharsToStrings(locations{2});
+X = locations{1};
+Y = locations{2};
 
 LocXY(1) = str2double(X);
 LocXY(2) = str2double(Y);
