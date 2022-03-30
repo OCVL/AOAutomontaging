@@ -52,12 +52,14 @@ ROICropPct = 0;
 parallelFlag = exist('parfor');
 
 %load data
-[inData, MN, errorFlag] = organizeDataByModality(imageDir, ModalitiesSrchStrings);
+
+[inData, MN, errorFlag] = organizeDataByModality(imageDir, ModalitiesSrchStrings, device_mode);
 if(errorFlag)
     errordlg(errorFlag);
     outNameList = [];
     return
 end
+
 N = size(inData,2);
 
 %initialize all variables

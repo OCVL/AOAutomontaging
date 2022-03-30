@@ -1,11 +1,25 @@
-function [inData, MN, errorFlag] = organizeDataByModality(imageDir, ModalitiesSrchStrings)
+function [inData, MN, errorFlag] = organizeDataByModality(imageDir, ModalitiesSrchStrings, device_mode)
 
 Allfiles = dir(fullfile(imageDir,'*.tif'));
 Allfiles = {Allfiles.name};
 
-MN = size(ModalitiesSrchStrings,1);
+
 inData = [];
 errorFlag=0;
+
+if strcmp(device_mode, 'meao')
+
+    allmodes = cell(length(Allfiles),1);
+
+    for f=1:length(Allfiles)
+        splitString = textscan(Allfiles{f}, '%s', 'Delimiter', '_');
+        splitString = splitString{1}; % First pull out the string itself.
+        allmodes{f} = splitString{7}(1:end-1);
+    end
+    ModalitiesSrchStrings = unique(allmodes);
+end
+
+MN = size(ModalitiesSrchStrings,1);
 
 %create multi-modal data structure
 %depending on parameter array ModalitiesSrchStrings

@@ -132,12 +132,13 @@ elseif strcmp(device_mode, 'meao')
         %Since the modality is being pulled out as well need to figure out
         %what variable this should be saved too
        [ eyeSide, LocXY(:,n), pixelScale(n), ID{n}] = parseMeaoFName( inData{1,n} );
+
        %need to process all the other modalities here - another loop?
        for m=1:MN
             imageFilename{m,n} = fullfile(imageDir, inData{m,n});
        end
     end
     pixelScale = pixelScale ./ min(pixelScale);
-    %pixelScale = min(pixelScale)./pixelScale;
+%     pixelScale = min(pixelScale)./pixelScale;
 end
 
