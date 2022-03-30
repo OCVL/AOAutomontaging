@@ -14,7 +14,7 @@ if strcmp(device_mode, 'meao')
     for f=1:length(Allfiles)
         splitString = textscan(Allfiles{f}, '%s', 'Delimiter', '_');
         splitString = splitString{1}; % First pull out the string itself.
-        allmodes{f} = splitString{7}(1:end-1);
+        allmodes{f} = regexprep(splitString{7}, '[0-9]+$','');
     end
     ModalitiesSrchStrings = unique(allmodes);
 end
@@ -31,7 +31,8 @@ for m = 1:MN
             if size(imagesFound,2) == size(inData,2) || isempty(inData)
                 inData = [inData; imagesFound];
                 counter = counter + 1;
-            else 
+            else
+                imagesFound
                 errorFlag = ['Error: Mismatch detected. Dataset must have the same number of modalities.'];
                 return
             end
