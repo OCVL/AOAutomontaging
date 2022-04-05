@@ -200,7 +200,7 @@ elseif strcmp(handles.device_mode, 'canon')
     
     %Add in another device mode and disable the postion
 elseif strcmp(handles.device_mode, 'meao')
-    expr = '.*_extract_reg_avg.tif';
+    expr = '.*avg.tif';
     f = cellfun(@(q) regexpi(q(1,:), expr, 'match'), Allfiles, 'UniformOutput', false);
     found = f(~cellfun('isempty', f));
     temp = cellfun(@(x) cell2mat(x), found, 'un', 0);

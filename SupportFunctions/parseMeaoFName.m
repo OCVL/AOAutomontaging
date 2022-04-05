@@ -36,7 +36,7 @@ X = locations{1};
 Y = locations{2};
 
 LocXY(1) = str2double(X);
-LocXY(2) = str2double(Y);
+LocXY(2) = -str2double(Y);
 
 end
 
