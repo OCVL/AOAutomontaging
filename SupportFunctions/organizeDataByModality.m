@@ -1,6 +1,7 @@
 function [inData, MN, errorFlag] = organizeDataByModality(imageDir, ModalitiesSrchStrings, device_mode)
 
 Allfiles = dir(fullfile(imageDir,'*.tif'));
+Allfiles = cat(1, Allfiles, dir(fullfile(imageDir,'*.png')) );
 Allfiles = {Allfiles.name};
 
 

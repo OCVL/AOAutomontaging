@@ -663,25 +663,23 @@ end
 for m = 1:MN
     
     %initialize blank combined image of all pieces for the modality
-    if(strcmp(device_mode, 'meao'))
-        imCombinedAll = zeros(length(vr),length(ur), 'uint16');
-    else
-        imCombinedAll = zeros(length(vr),length(ur), 'uint8');
-    end
+    imCombinedAll = zeros(length(vr),length(ur), 'uint8');
     
     for i = 1: NumOfRefs
         if ~isempty(imageFilename{m,AllRefIndex(i)})
             %initialize blank combined image for the modality/piece
-            if(strcmp(device_mode, 'meao'))
-                imCombined = zeros(length(vr),length(ur), 'uint16');
-            else
+%             if(strcmp(device_mode, 'meao'))
+%                 imCombined = zeros(length(vr),length(ur), 'uint16');
+%             else
                 imCombined = zeros(length(vr),length(ur), 'uint8');
-            end
+%             end
             
             for n = RefChains{i}
                 if ~isempty(imageFilename{m,n})
                     %read each image, and then transform
-                    im = imresize( imread(char(imageFilename{m,n})),pixelScale(n) );
+                    [im, ~, alph] = imread(char(imageFilename{m,n}));
+                    im = imresize(im ,pixelScale(n) );
+                    
                     
 
                     H = TotalTransform(:,:,n);
@@ -692,6 +690,11 @@ for m = 1:MN
                     %Adding one changes nothing, but ensures that we don't
                     %clip out low parts of the image.
                     im_= imwarp(im, imref2d(size(im)), tform,'OutputView', imref2d(size(imCombined))); 
+
+                    if ~isempty(alph)
+                        alph = imresize(alph ,pixelScale(n) );
+                        alph_= imwarp(alph, imref2d(size(im)), tform,'OutputView', imref2d(size(imCombined)));
+                    end
                     
                     %save each individually transformed image
                     [pathstr,name,ext] = fileparts(char(imageFilename{m,n})) ;
@@ -702,20 +705,29 @@ for m = 1:MN
                         %add to combined image
                         nonzero = im_(:,:,2)>0;
                         im_ = im_(:,:,1);
+                    elseif ~isempty(alph_)
+                        nonzero = alph_>0;
+                        comb_nonzero = alph_>=250;
+                        im_ = im_(:,:,1);
                     else
                         im_ = im_(:,:,1);
                         nonzero = im_>0;
                     end
                     
                     %add to combined image
-                    imCombined(nonzero) = im_(nonzero);
+                    imCombined(comb_nonzero) = im_(comb_nonzero);
                     
                     %save
-                    saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.tif'];
-                    
-                    if(isa(im,'double') || isa(im,'single'))%if input was floating point, save as single
+                    if strcmp(imageFilename{m,n}(end-2:end),'png')
+                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.png'];
+
+                        imwrite(im_, fullfile(outputDir, saveFileName), 'Alpha', double(nonzero));
+
+                    elseif(isa(im,'double') || isa(im,'single'))%if input was floating point, save as single
+                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.tif'];
                         saveTifDouble(single(im_),outputDir,saveFileName);
                     else %else save as uint8 -- prob needs to have a meao version
+                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.tif'];
                         %convert if output file is currently floating,
                         if (isa(im_,'double') || isa(im,'single'))       
                                 im_(:,:,1) = uint8(round(im_*255));
@@ -734,29 +746,29 @@ for m = 1:MN
             %add to all combined image
             nonzero = imCombined>0;
             imCombinedAll(nonzero) = imCombined(nonzero);
-            if(strcmp(device_mode, 'meao'))
-                imCombined(:,:,2) = round(nonzero*65535);
-            else
-                imCombined(:,:,2) = round(nonzero*255);
-            end
+%             if(strcmp(device_mode, 'meao'))
+%                 imCombined(:,:,2) = round(nonzero*65535);
+%             else
+%                 imCombined(:,:,2) = round(nonzero*255);
+%             end
             
             %save combined image for each piece - removed for memory concerns.
             if(NumOfRefs > 1)%only necessary if more than one piece
-                saveFileName = strcat('ref_',num2str(i),'_combined_m',num2str(m),'.tif');
+                saveFileName = strcat('ref_',num2str(i),'_combined_m',num2str(m),'.png');
 
                 if(AppendToExisting)
                     outNameList{i+1,m}=fullfile('Append',saveFileName);
                 else
                     outNameList{i+1,m}=saveFileName;
                 end
-
-                saveTif(imCombined,outputDir,saveFileName);
+                imwrite(uint8(imCombined), fullfile(outputDir, saveFileName), 'Alpha', double(nonzero));
+%                 saveTif(imCombined,outputDir,saveFileName);
             end
         end
     end
     
     %save the combined image of all the pieces
-    saveFileName = strcat('all_ref_combined_m',num2str(m),'.tif');
+    saveFileName = strcat('all_ref_combined_m',num2str(m),'.png');
     if(AppendToExisting)
         outNameList{1,m}=fullfile('Append',saveFileName);
     else
@@ -764,13 +776,13 @@ for m = 1:MN
     end
     
     nonzero = imCombinedAll>0;
-    if(strcmp(device_mode, 'meao'))
-        imCombinedAll(:,:,2) = round(nonzero*65535);
-    else
-        imCombinedAll(:,:,2) = round(nonzero*255);
-    end
-    
-    saveTif(imCombinedAll,outputDir,saveFileName);
+%     if(strcmp(device_mode, 'meao'))
+%         imCombinedAll(:,:,2) = round(nonzero*65535);
+%     else
+%         imCombinedAll(:,:,2) = round(nonzero*255);
+%     end
+    imwrite(imCombinedAll, fullfile(outputDir, saveFileName), 'Alpha', double(nonzero));
+%     saveTif(imCombinedAll,outputDir,saveFileName);
     
 end
 

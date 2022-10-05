@@ -173,6 +173,7 @@ set(handles.selectFolderText, 'String', handles.imgfolder_name) ;
 set(handles.selectFolderText, 'TooltipString', handles.imgfolder_name);
 
 Allfiles = dir(fullfile(handles.imgfolder_name,'*.tif')); %puts into an array all files from the image folder that have a tif extension
+Allfiles = cat(1, Allfiles, dir(fullfile(handles.imgfolder_name,'*.png')) ); %puts into an array all files from the image folder that have a png extension
 Allfiles = {Allfiles.name}; %gets the name attribute from the above line
 
 handles.imageFile_names =[];
@@ -200,7 +201,7 @@ elseif strcmp(handles.device_mode, 'canon')
     
     %Add in another device mode and disable the postion
 elseif strcmp(handles.device_mode, 'meao')
-    expr = '.*avg.tif';
+    expr = '.*avg.';
     f = cellfun(@(q) regexpi(q(1,:), expr, 'match'), Allfiles, 'UniformOutput', false);
     found = f(~cellfun('isempty', f));
     temp = cellfun(@(x) cell2mat(x), found, 'un', 0);
