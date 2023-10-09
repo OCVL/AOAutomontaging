@@ -719,15 +719,15 @@ for m = 1:MN
                     
                     %save
                     if strcmp(imageFilename{m,n}(end-2:end),'png')
-                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.png'];
+                        saveFileName=[name,'_wref',num2str(i),'_m',num2str(m),'.png'];
 
                         imwrite(im_, fullfile(outputDir, saveFileName), 'Alpha', double(nonzero));
 
                     elseif(isa(im,'double') || isa(im,'single'))%if input was floating point, save as single
-                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.tif'];
+                        saveFileName=[name,'_wref',num2str(i),'_m',num2str(m),'.tif'];
                         saveTifDouble(single(im_),outputDir,saveFileName);
                     else %else save as uint8 -- prob needs to have a meao version
-                        saveFileName=[name,'_aligned_to_ref',num2str(i),'_m',num2str(m),'.tif'];
+                        saveFileName=[name,'_wref',num2str(i),'_m',num2str(m),'.tif'];
                         %convert if output file is currently floating,
                         if (isa(im_,'double') || isa(im,'single'))       
                                 im_(:,:,1) = uint8(round(im_*255));
