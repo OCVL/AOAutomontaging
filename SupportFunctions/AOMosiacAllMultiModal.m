@@ -680,7 +680,7 @@ for m = 1:MN
                     [im, ~, alph] = imread(char(imageFilename{m,n}));
                     im = imresize(im ,pixelScale(n) );
                     
-                    
+                    alph = ones(size(im));
 
                     H = TotalTransform(:,:,n);
                     H = pinv(H');
