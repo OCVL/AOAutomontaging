@@ -701,7 +701,7 @@ for m = 1:MN
                     
                     
                     %we check the original type of the image and save accordingly
-                    if size(im_,3) == 2
+                    if size(im_, 3) == 2
                         %add to combined image
                         nonzero = im_(:,:,2)>0;
                         im_ = im_(:,:,1);
@@ -721,7 +721,7 @@ for m = 1:MN
                     if strcmp(imageFilename{m,n}(end-2:end),'png')
                         saveFileName=[name,'_wref',num2str(i),'_m',num2str(m),'.png'];
 
-                        imwrite(im_, fullfile(outputDir, saveFileName), 'Alpha', double(nonzero));
+                        imwrite(im_, fullfile(outputDir, saveFileName), 'Alpha', double(nonzero(:, :, 1)));
 
                     elseif(isa(im,'double') || isa(im,'single'))%if input was floating point, save as single
                         saveFileName=[name,'_wref',num2str(i),'_m',num2str(m),'.tif'];
