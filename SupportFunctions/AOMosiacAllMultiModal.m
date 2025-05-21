@@ -680,8 +680,6 @@ for m = 1:MN
                     [im, ~, alph] = imread(char(imageFilename{m,n}));
                     im = imresize(im ,pixelScale(n) );
                     
-                    alph = ones(size(im));
-
                     H = TotalTransform(:,:,n);
                     H = pinv(H');
                     H(:,3)=[0;0;1]; 
@@ -706,16 +704,15 @@ for m = 1:MN
                         nonzero = im_(:,:,2)>0;
                         im_ = im_(:,:,1);
                     elseif ~isempty(alph_)
-                        nonzero = alph_>0;
-                        comb_nonzero = alph_>=250;
+                        nonzero = alph_>=250;
                         im_ = im_(:,:,1);
                     else
                         im_ = im_(:,:,1);
-                        nonzero = im_>0;
+                        nonzero = im_(:,:,1)>0;
                     end
                     
                     %add to combined image
-                    imCombined(comb_nonzero) = im_(comb_nonzero);
+                    imCombined(nonzero) = im_(nonzero);
                     
                     %save
                     if strcmp(imageFilename{m,n}(end-2:end),'png')
